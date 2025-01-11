@@ -1,0 +1,14 @@
+{
+	"geode": "4.1.2",
+	"gd": {
+		"win": "2.2074",
+		"android": "2.2074",
+		"mac": "2.2074",
+		"ios": "2.2074"
+	},
+	"id": "jaydenha.openshock-gd",
+	"name": "OpenShock-GD",
+	"version": "v1.0.0",
+	"developer": "JaydenHa",
+	"description": "OpenShock integration"
+}
