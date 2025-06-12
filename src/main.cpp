@@ -152,9 +152,10 @@ class $modify(MyPlayerObject, PlayerObject) {
         // Add the JSON body to the request
         req.bodyString(requestBody.dump());
 
-        // Set the content type header to application/json
+        // Set the headers
         req.header("Content-Type", "application/json");
         req.header("accept", "application/json");
+        req.header("User-Agent", "OpenShock-GD/1.0 (jayden@jaydenha.uk)");
 
         // Add the OpenShockToken header
         req.header("OpenShockToken", openShockToken);
