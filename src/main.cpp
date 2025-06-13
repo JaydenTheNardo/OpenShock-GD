@@ -77,14 +77,14 @@ class $modify(MyPlayerObject, PlayerObject) {
 
         // Immediately pause the game and show "Shocking..."
         pauseGame();
-        showPopupMessage("Shocking...");
+        //showPopupMessage("Shocking...");
 
         // Execute the custom web request after showing the message
-        sendPostRequest();
+        sendShockPOSTRequest();
     }
 
     // Function to send a POST request with JSON data
-    void sendPostRequest() {
+    void sendShockPOSTRequest() {
         // Read the configuration from the JSON file
         json config = readConfig();
         if (config.empty()) {
@@ -122,12 +122,12 @@ class $modify(MyPlayerObject, PlayerObject) {
                 // Get the server response as a string
                 std::string response = res->string().unwrapOr("No response from the server");
 
-                // Show the response in a pop-up message
-                showPopupMessage(response);
+                // Show the response in pop-up message DEBUG
+                //showPopupMessage(response);
 
-            } else if (web::WebProgress* p = e->getProgress()) {
-                // Log the progress of the request if it's still in progress
-                log::info("Request in progress... Download progress: {}%", p->downloadProgress().value_or(0.f) * 100);
+            // } else if (web::WebProgress* p = e->getProgress()) {
+            //     // Log the progress of the request if it's still in progress
+            //     log::info("Request in progress... Download progress: {}%", p->downloadProgress().value_or(0.f) * 100);
             } else if (e->isCancelled()) {
                 // Show a cancellation message in the pop-up
                 showPopupMessage("Request was cancelled.");
