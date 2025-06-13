@@ -166,6 +166,7 @@ class $modify(MyPlayerObject, PlayerObject) {
 
         // Show the duration and intensity in a pop-up message
         showPopupMessage("Duration: " + std::to_string(randomDurationMs / 1000) + "s" + "     " + "Intensity: " + std::to_string(randomIntensity));
+        showStopPopup("Press this button to stop the electric shock");
     }
 
     // Function to send a POST request with JSON data
@@ -219,8 +220,8 @@ class $modify(MyPlayerObject, PlayerObject) {
             { "shocks", {{
                 { "id", shockerID },
                 { "type", "Stop" },
-                { "intensity", "1" },
-                { "duration", "1" },
+                { "intensity", "100" },
+                { "duration", "300" },
                 { "exclusive", true }
             }}},
             { "customName", customName }
@@ -273,11 +274,12 @@ class $modify(MyPlayerObject, PlayerObject) {
         geode::createQuickPopup(
             "EMERGENCY STOP",           // Title
             message.c_str(),     // Content (ensure it's a C-style string for createQuickPopup)
-        "STOP",          // Text for button 1
-        nullptr,             // No second button
-        [](auto, bool btn2) {
-            // WIP
-        }
+            "STOP",          // Text for button 1
+            nullptr,             // No second button
+            [this](auto, bool btn2) {
+                // stopShockPOSTRequest();
+                pauseGame();
+            }
         );
     }
 
