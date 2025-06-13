@@ -168,6 +168,80 @@ class $modify(MyPlayerObject, PlayerObject) {
         showPopupMessage("Duration: " + std::to_string(randomDurationMs / 1000) + "s" + "     " + "Intensity: " + std::to_string(randomIntensity));
     }
 
+    // Function to send a POST request with JSON data
+    void stopShockPOSTRequest() {
+        // Read the configuration from the JSON file
+        json config = readConfig();
+        if (config.empty()) {
+            return; // Exit if the configuration couldn't be read or is invalid
+        }
+
+        // Extract the min and max values for random generation
+        auto shockerID = config.value("shockerID", "");
+        auto openShockToken = config.value("OpenShockToken", "");
+        auto customName = config.value("customName", "");
+
+        // Get the endpoint domain, default to api.openshock.app if missing or empty
+        std::string endpointDomain = config.value("endpointDomain", "api.openshock.app");
+        if (endpointDomain.empty()) {
+            endpointDomain = "api.openshock.app";
+        }
+
+        if (shockerID.empty() || openShockToken.empty() || customName.empty()) {
+            log::error("Missing required fields in JSON configuration");
+            showPopupMessage("Error: Missing required fields in config file! Please read the manual for instructions.");
+            return;
+        }
+
+        // Bind the listener to handle the response
+        m_fields->m_listener.bind([this](web::WebTask::Event* e) {
+            if (web::WebResponse* res = e->getValue()) {
+                // Get the server response as a string
+                std::string response = res->string().unwrapOr("No response from the server");
+
+                // Show the response in pop-up message DEBUG
+                //showPopupMessage(response);
+
+                // } else if (web::WebProgress* p = e->getProgress()) {
+                //     // Log the progress of the request if it's still in progress
+                //     log::info("Request in progress... Download progress: {}%", p->downloadProgress().value_or(0.f) * 100);
+            } else if (e->isCancelled()) {
+                // Show a cancellation message in the pop-up
+                showPopupMessage("Request was cancelled.");
+            }
+        });
+
+        // Create the web request object
+        auto req = web::WebRequest();
+
+        // Set the request body as JSON (as a string), using the generated values
+        json requestBody = {
+            { "shocks", {{
+                { "id", shockerID },
+                { "type", "Stop" },
+                { "intensity", "1" },
+                { "duration", "1" },
+                { "exclusive", true }
+            }}},
+            { "customName", customName }
+        };
+
+        // Add the JSON body to the request
+        req.bodyString(requestBody.dump());
+
+        // Set the headers
+        req.header("Content-Type", "application/json");
+        req.header("accept", "application/json");
+        req.header("User-Agent", "OpenShock-GD/1.0 (jayden@jaydenha.uk)");
+
+        // Add the OpenShockToken header
+        req.header("OpenShockToken", openShockToken);
+
+        // Construct the full URL with the endpoint domain
+        std::string url = "https://" + endpointDomain + "/2/shockers/control";
+        m_fields->m_listener.setFilter(req.post(url));
+    }
+
     // Function to pause the game
     void pauseGame() {
         if (auto playLayer = PlayLayer::get()) {
@@ -183,8 +257,28 @@ class $modify(MyPlayerObject, PlayerObject) {
 
     // Function to show a pop-up message
     void showPopupMessage(const std::string& message) {
-        auto alertLayer = FLAlertLayer::create(nullptr, "Message", message.c_str(), "Continue", nullptr);
-        alertLayer->onBtn1(this); // Set a tag for the pop-up layer
-        alertLayer->show();
+        geode::createQuickPopup(
+            "Message",        // Title
+            message.c_str(),  // Content (ensure it's a C-style string for createQuickPopup)
+        "Continue",          // Text for button 1
+        nullptr,             // No second button
+        [](auto, bool btn2) {
+            // Nothing here
+        }
+        );
     }
+
+    // Function to show a pop-up message
+    void showStopPopup(const std::string& message) {
+        geode::createQuickPopup(
+            "EMERGENCY STOP",           // Title
+            message.c_str(),     // Content (ensure it's a C-style string for createQuickPopup)
+        "STOP",          // Text for button 1
+        nullptr,             // No second button
+        [](auto, bool btn2) {
+            // WIP
+        }
+        );
+    }
+
 };
