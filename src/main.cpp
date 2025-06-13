@@ -271,14 +271,15 @@ class $modify(MyPlayerObject, PlayerObject) {
 
     // Function to show a pop-up message
     void showStopPopup(const std::string& message) {
+        log::info("Start Pop up");
         geode::createQuickPopup(
             "EMERGENCY STOP",           // Title
             message.c_str(),     // Content (ensure it's a C-style string for createQuickPopup)
             "STOP",          // Text for button 1
             nullptr,             // No second button
-            [this](auto, bool btn2) {
-                // stopShockPOSTRequest();
-                pauseGame();
+            [this](auto, bool btn1) {
+                stopShockPOSTRequest();
+                log::info("stop request should be sent");
             }
         );
     }
